@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .red{background:red;}
+    </style>
+    <script src="lib/vue.js"></script>
+    <script src="lib/vue-resource.js"></script>
+    <script>
+        window.onload = function () {
+            new Vue({
+                el:'#box',
+                data :{
+                    myData :[],
+                    tl:'',
+                    initIndex:-1
+                },
+                methods:{
+                    get :function (ev) {
+                        if(ev.keyCode == 38 || ev.keyCode == 40) return;
+                        if(ev.keyCode == 13){
+                            window.open('https://www.baidu.com/s?wd='+this.tl)
+                        }
+                        this.$http.jsonp('https://sp0.baidu.com/5a1Fazu8AA54nxGko9WTAnF6hhy/su',{
+                            wd : this.tl
+                        },{
+                            jsonp:'cb'
+                        }).then(function (res) {
+                            this.myData = res.data.s
+                        },function () {
+                        })
+                    },
+                    pressDown:function () {
+                        this.initIndex++;
+                        if(this.initIndex == this.myData.length)
+                            this.initIndex=-1;
+                        this.tl = this.myData[this.initIndex ]
+                    },
+                    pressUp : function () {
+                        this.initIndex --;
+                        if(this.initIndex == -2)
+                        this.initIndex = this.myData.length-1;
+                        this.tl = this.myData[this.initIndex ]
+                    }
+                }
+            })
+        }
+    </script>
+</head>
+<body>
+<div id="box">
+    <input type="text" v-model="tl" @keyup="get($event)" @keydown.down="pressDown" @keydown.up.prevent ="pressUp">
+    {{tl}}
+    <ul>
+        <li v-for="value in myData" :class="{red:$index == initIndex}">
+            {{value}}
+        </li>
+    </ul>
+    <p v-show="myData.length == 0">暂无数据...</p>
+</div>
+</body>
+</html>
